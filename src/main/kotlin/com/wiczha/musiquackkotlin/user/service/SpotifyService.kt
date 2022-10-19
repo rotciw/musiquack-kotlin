@@ -1,8 +1,12 @@
 package com.wiczha.musiquackkotlin.user.service
 
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import se.michaelthelin.spotify.SpotifyApi
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException
+import se.michaelthelin.spotify.model_objects.specification.Paging
+import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.User
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
@@ -50,6 +54,18 @@ class SpotifyService {
             println("Error" + e.localizedMessage)
         } catch (e: Throwable) {
             println("Spotify web exception " + e.localizedMessage)
+        }
+        return null
+    }
+
+    fun getListOfUserPlaylists(accessToken: String?, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>? {
+        val currentUserPlaylists = spotifyApi.listOfCurrentUsersPlaylists.build()
+        try {
+            return currentUserPlaylists.execute()
+        } catch (e: IOException) {
+            throw IOException("Error" + e.localizedMessage)
+        } catch (e: Throwable) {
+            throw SpotifyWebApiException("Spotify web exception " + e.localizedMessage)
         }
         return null
     }

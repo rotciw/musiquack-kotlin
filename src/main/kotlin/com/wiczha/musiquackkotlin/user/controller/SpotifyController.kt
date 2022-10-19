@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import se.michaelthelin.spotify.model_objects.specification.Paging
+import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.User
 
 @RestController
@@ -44,6 +46,14 @@ class SpotifyController {
         .currentUserProfileAsync(
             token, spotifyAuth.tokenAuthorization(token)
         )
+
+    @RequestMapping("/playlists/{token}")
+    fun currentUserPlaylists(@PathVariable token: String?): Paging<PlaylistSimplified>?
+            = createSpotifyService()
+        .getListOfUserPlaylists(
+            token, spotifyAuth.tokenAuthorization(token)
+        )
+
 
     fun createSpotifyService(): SpotifyService = SpotifyService()
 }
