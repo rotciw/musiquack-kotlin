@@ -19,7 +19,7 @@ class SpotifyAuthorization {
     fun authorizationCodeUriRequest(spotifyApi: SpotifyApi): AuthorizationCodeUriRequest
         = spotifyApi.authorizationCodeUri()
         .state("x4xkmn9pu3j6ukrs8n")
-        .scope("user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,playlist-modify-private,playlist-modify-public")
+        .scope("user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,playlist-modify-private,playlist-modify-public,streaming,user-read-playback-state,user-modify-playback-state")
         .show_dialog(true)
         .build()
 
