@@ -7,6 +7,4 @@ import com.wiczha.musiquackkotlin.user.domain.User
 interface UserService {
     fun create(request: UserCreateRequest): UserCreateResponse
     fun findByUserId(userId: String): User
-    fun findByUsername(username: String): User
-    fun findAllUsers(): List<User>
 }

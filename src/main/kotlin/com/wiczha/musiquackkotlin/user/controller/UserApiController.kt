@@ -12,12 +12,7 @@ class UserApiController(
     @PostMapping
     fun create(@RequestBody request: UserCreateRequest) = userService.create(request)
 
-    @GetMapping
-    fun index() = userService.findAllUsers()
-
     @GetMapping("/id/{userId}")
     fun findByUserId(@PathVariable("userId") userId: String) = userService.findByUserId(userId)
 
-    @GetMapping("/name/{username}")
-    fun findByUsername(@PathVariable("username") username: String) = userService.findByUsername(username)
 }

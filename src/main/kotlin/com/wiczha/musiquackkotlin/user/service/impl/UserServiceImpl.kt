@@ -27,13 +27,4 @@ class UserServiceImpl(
         return userRepository.findByUserIdOrderByCreatedAtAsc(userId)
     }
 
-
-    override fun findByUsername(userId: String): User {
-        return userRepository.findByUsernameOrderByCreatedAtDesc(userId)
-    }
-
-    override fun findAllUsers(): List<User> {
-        return userRepository.findAll() as List<User>
-    }
-
 }

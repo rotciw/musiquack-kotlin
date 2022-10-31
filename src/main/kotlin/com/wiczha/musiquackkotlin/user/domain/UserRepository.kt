@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository
 @EnableScan
 interface UserRepository : CrudRepository<User, String> {
     fun findByUserIdOrderByCreatedAtAsc(userId: String): User
-    fun findByUsernameOrderByCreatedAtDesc(username: String): User
+    fun findByUsernameOrderByCreatedAtDesc(userId: String): User
 }

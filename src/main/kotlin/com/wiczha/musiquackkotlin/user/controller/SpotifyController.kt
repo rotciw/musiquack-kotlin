@@ -1,7 +1,10 @@
 package com.wiczha.musiquackkotlin.user.controller
 
 import com.wiczha.musiquackkotlin.user.authorization.SpotifyAuthorization
+import com.wiczha.musiquackkotlin.user.controller.request.UserCreateRequest
 import com.wiczha.musiquackkotlin.user.service.SpotifyService
+import com.wiczha.musiquackkotlin.user.service.UserService
+import com.wiczha.musiquackkotlin.user.service.impl.SpotifyServiceImpl
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -11,7 +14,9 @@ import se.michaelthelin.spotify.model_objects.specification.*
 
 @RestController
 @RequestMapping("v1/spotify")
-class SpotifyController {
+class SpotifyController(
+    private val userService: UserService
+) {
     @Value("\${spotify.clientid}")
     lateinit var clientID: String
 
@@ -29,15 +34,33 @@ class SpotifyController {
         )
     )
 
-    @RequestMapping("/token/{code}")
-    fun authorizationToken(@PathVariable code: String): List<String>?
-            = createSpotifyService()
-        .authorizationCodeSync(
-            spotifyAuth.buildAuthorizationCode(
-                spotifyAuth.getSpotifyBuilder( clientID,clientSecret ), code
-            ),
-            spotifyAuth.getSpotifyBuilder( clientID, clientSecret )
+    @RequestMapping("/token/{code}/{email}")
+    fun authorizationToken(@PathVariable code: String, @PathVariable email: String): String {
+        val codes = createSpotifyService()
+            .authorizationCodeSync(
+                spotifyAuth.buildAuthorizationCode(
+                    spotifyAuth.getSpotifyBuilder(clientID, clientSecret), code
+                ),
+                spotifyAuth.getSpotifyBuilder(clientID, clientSecret)
+            )
+        userService.create(
+            UserCreateRequest(
+                userId = email,
+                username = email,
+                accessToken = codes?.get(0) ?: "",
+                refreshToken = codes?.get(1) ?: "",
+            )
         )
+        return codes?.get(0) ?: ""
+    }
+
+    @GetMapping("/refresh/{email}")
+    fun authCodeRefresh(@PathVariable email: String): List<String>? {
+        val requestUser = userService.findByUserId(email)
+        return createSpotifyService().authorizationCodeRefreshSync(
+            spotifyAuth.refreshTokenAuthorization(requestUser.refreshToken, clientID, clientSecret)
+        )
+    }
 
     @GetMapping("/user/{token}")
     fun currentUserData(@PathVariable token: String?): User?
@@ -74,6 +97,5 @@ class SpotifyController {
             token, trackId, spotifyAuth.tokenAuthorization(token)
         )
 
-
-    fun createSpotifyService(): SpotifyService = SpotifyService()
+    fun createSpotifyService(): SpotifyService = SpotifyServiceImpl()
 }
