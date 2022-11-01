@@ -23,15 +23,12 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-noarg")
 
-    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.258")
+    implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.328")
     implementation("io.github.boostchicken:spring-data-dynamodb:5.2.5")
     implementation("se.michaelthelin.spotify:spotify-web-api-java:7.2.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test-junit"))
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.2")
-    testImplementation("io.kotest:kotest-runner-junit5:5.0.0.M3")
-    testImplementation("io.kotest:kotest-assertions-core:5.0.0.M3")
-    testImplementation("com.ninja-squad:springmockk:3.0.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
 }
 
 tasks.withType<KotlinCompile> {

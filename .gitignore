@@ -4,7 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-application.yml
 
 ### STS ###
 .apt_generated
@@ -36,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Terraform ###
+/terraform/dev/.terraform*
+/terraform/dev/*.tfvars
+/terraform/service/.terraform*

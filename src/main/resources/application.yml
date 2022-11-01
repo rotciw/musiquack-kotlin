@@ -1,0 +1,10 @@
+cors:
+  originPatterns: ${CORS_ORIGIN}
+
+spotify:
+  redirect:
+    uri: ${SPOTIFY_CALLBACK_URI}
+  clientid: ${SPOTIFY_CLIENTID}
+  clientsecret: ${SPOTIFY_CLIENTSECRET}
+
+dynamoDBTableName: ${DYNAMODB_TABLE_NAME}

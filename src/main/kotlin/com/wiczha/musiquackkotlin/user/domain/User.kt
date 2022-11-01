@@ -6,7 +6,8 @@ import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import java.util.*
 
-@DynamoDBTable(tableName = "musiquack_users")
+
+@DynamoDBTable(tableName = "placeholder")
 class User(
     @field:DynamoDBHashKey
     @field:DynamoDBAttribute(attributeName = "userId")

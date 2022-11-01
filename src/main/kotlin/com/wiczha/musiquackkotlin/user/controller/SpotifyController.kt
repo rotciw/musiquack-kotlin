@@ -16,7 +16,8 @@ import se.michaelthelin.spotify.model_objects.specification.*
 @RestController
 @RequestMapping("v1/spotify")
 class SpotifyController(
-    private val userService: UserService
+    private val userService: UserService,
+    @Value("\${spotify.redirect.uri}") var spotifyCallbackUri: String
 ) {
     @Value("\${spotify.clientid}")
     lateinit var clientID: String
@@ -24,14 +25,14 @@ class SpotifyController(
     @Value("\${spotify.clientsecret}")
     lateinit var clientSecret: String
 
-    var spotifyAuth = SpotifyAuthorization()
+    private var spotifyAuth = SpotifyAuthorization(spotifyCallbackUri)
 
     @RequestMapping("/callback/uri")
     fun authorizationUri(): String?
             = createSpotifyService().
     authorizationCodeUriSync(
         spotifyAuth.authorizationCodeUriRequest(
-            spotifyAuth.getSpotifyBuilder(clientID,clientSecret)
+            spotifyAuth.getSpotifyBuilder(clientID, clientSecret)
         )
     )
 

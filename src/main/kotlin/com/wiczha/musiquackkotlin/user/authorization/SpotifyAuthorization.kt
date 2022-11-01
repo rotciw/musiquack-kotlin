@@ -5,11 +5,10 @@ import se.michaelthelin.spotify.SpotifyHttpManager
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
 
-class SpotifyAuthorization {
-    private val spotifyCallbackUri: String = System.getenv("SPOTIFY_CALLBACK_URI")
+class SpotifyAuthorization(spotifyCallbackUri: String) {
+
     private val redirectUri = SpotifyHttpManager.
     makeUri(spotifyCallbackUri)
-
     fun getSpotifyBuilder(clientID: String, clientSecret: String): SpotifyApi
         = SpotifyApi.builder()
         .setClientId(clientID)
