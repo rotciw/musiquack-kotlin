@@ -87,8 +87,8 @@ class SpotifyServiceImpl: SpotifyService {
         return null
     }
 
-    override fun getListOfUserPlaylists(accessToken: String?, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>? {
-        val currentUserPlaylists = spotifyApi.listOfCurrentUsersPlaylists.build()
+    override fun getListOfUserPlaylists(accessToken: String?, offset: Int, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>? {
+        val currentUserPlaylists = spotifyApi.listOfCurrentUsersPlaylists.offset(offset).build()
         try {
             return currentUserPlaylists.execute()
         } catch (e: IOException) {

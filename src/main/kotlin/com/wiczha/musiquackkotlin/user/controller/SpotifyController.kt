@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import se.michaelthelin.spotify.model_objects.specification.*
 
@@ -70,10 +71,10 @@ class SpotifyController(
         )
 
     @GetMapping("/playlists/{token}")
-    fun currentUserPlaylists(@PathVariable token: String?): Paging<PlaylistSimplified>?
+    fun currentUserPlaylists(@PathVariable token: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>?
             = createSpotifyService()
         .getListOfUserPlaylists(
-            token, spotifyAuth.tokenAuthorization(token)
+            token, offset, spotifyAuth.tokenAuthorization(token)
         )
 
     @GetMapping("/playlists/{token}/{playlistId}")

@@ -20,7 +20,7 @@ interface SpotifyService {
 
     fun currentUserProfileAsync(accessToken: String?, spotifyApi: SpotifyApi): User?
 
-    fun getListOfUserPlaylists(accessToken: String?, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>?
+    fun getListOfUserPlaylists(accessToken: String?, offset:Int, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>?
 
     fun getPlaylistItems(accessToken: String?, playlistId: String?, spotifyApi: SpotifyApi): Paging<PlaylistTrack>?
 
