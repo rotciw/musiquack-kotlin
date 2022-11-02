@@ -2,7 +2,6 @@ package com.wiczha.musiquackkotlin.config
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig.DefaultTableNameResolver
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter
@@ -11,7 +10,6 @@ import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRep
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Primary
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -46,11 +44,6 @@ class DynamoDBConfig {
         return builder.build()
     }
 
-//    @Primary
-//    @Bean
-//    fun dynamoDBMapper(amazonDynamoDB: AmazonDynamoDB): DynamoDBMapper {
-//        return DynamoDBMapper(amazonDynamoDB, dynamoDBMapperConfig())
-//    }
 
     @Bean
     fun amazonDynamoDB(): AmazonDynamoDB {
