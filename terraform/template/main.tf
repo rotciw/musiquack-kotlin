@@ -19,8 +19,8 @@ locals {
   environment = "dev"
 }
 
-resource "aws_iam_role" "application_image_builder" {
-  name = "${var.application_name}-${var.environment}-deploy"
+resource "aws_iam_role" "app_runner_iam_role" {
+  name = "${var.application_name}-${var.environment}-app-runner"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -40,8 +40,24 @@ resource "aws_iam_role" "application_image_builder" {
 }
 
 resource "aws_iam_role_policy_attachment" "application_image_builder" {
-  role = aws_iam_role.application_image_builder.name
+  role = aws_iam_role.app_runner_iam_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
+}
+
+
+resource "aws_iam_role_policy" "dynamodb_app_runner_policy" {
+  name = "dynamodb_app_runner_policy"
+  role   = aws_iam_role.app_runner_iam_role.id
+  policy = jsonencode({
+    "Version": "2012-10-17"
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["dynamodb:*"],
+        "Resource": aws_dynamodb_table.musiquack_users_table.arn
+      }
+    ]
+  })
 }
 
 resource "aws_apprunner_service" "application" {
@@ -54,6 +70,10 @@ resource "aws_apprunner_service" "application" {
     healthy_threshold = 2
     unhealthy_threshold = 3
     timeout = 2
+  }
+
+  instance_configuration {
+    instance_role_arn = aws_iam_role.app_runner_iam_role.arn
   }
 
   source_configuration {
@@ -75,7 +95,7 @@ resource "aws_apprunner_service" "application" {
     }
 
     authentication_configuration {
-      access_role_arn = aws_iam_role.application_image_builder.arn
+      access_role_arn = aws_iam_role.app_runner_iam_role.arn
     }
   }
 
