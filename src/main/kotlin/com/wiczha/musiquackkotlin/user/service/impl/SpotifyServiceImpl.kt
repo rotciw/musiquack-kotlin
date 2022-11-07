@@ -1,25 +1,21 @@
 package com.wiczha.musiquackkotlin.user.service.impl
 
-import com.wiczha.musiquackkotlin.user.controller.request.UserCreateRequest
+import com.neovisionaries.i18n.CountryCode
 import com.wiczha.musiquackkotlin.user.service.SpotifyService
-import org.apache.http.HttpException
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import se.michaelthelin.spotify.SpotifyApi
-import se.michaelthelin.spotify.SpotifyHttpManager
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException
 import se.michaelthelin.spotify.model_objects.specification.Paging
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 import se.michaelthelin.spotify.model_objects.specification.Recommendations
 import se.michaelthelin.spotify.model_objects.specification.Track
-import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest
 import se.michaelthelin.spotify.model_objects.specification.User as SpotifyUser
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
 import java.io.IOException
-import com.wiczha.musiquackkotlin.user.service.UserService as UserService
 
 @Service
 class SpotifyServiceImpl: SpotifyService {
@@ -100,7 +96,8 @@ class SpotifyServiceImpl: SpotifyService {
     }
 
     override fun getPlaylistItems(accessToken: String?, playlistId: String?, spotifyApi: SpotifyApi): Paging<PlaylistTrack>? {
-        val playlistItem = spotifyApi.getPlaylistsItems(playlistId).build()
+        val currentUser = currentUserProfileAsync(accessToken, spotifyApi)
+        val playlistItem = spotifyApi.getPlaylistsItems(playlistId).market(currentUser?.country).build()
         try {
             return playlistItem.execute()
         } catch (e: IOException) {
@@ -126,11 +123,6 @@ class SpotifyServiceImpl: SpotifyService {
     override fun getTrackRecommendations(accessToken: String?, trackId: String?, spotifyApi: SpotifyApi): Recommendations? {
         val trackRecommendations = spotifyApi.recommendations.seed_tracks(trackId).limit(50).min_popularity(27).build()
         try {
-//            TODO("Sort by popularity")
-//            val executedTrackRecommendations = trackRecommendations.execute()
-//            val stringList = executedTrackRecommendations.tracks.map { trackId }.joinToString()
-//            print(stringList)
-//            val getMultipleTracks = spotifyApi.getSeveralTracks(stringList).build()
             return trackRecommendations.execute()
         } catch (e: IOException) {
             throw IOException("Error" + e.localizedMessage)

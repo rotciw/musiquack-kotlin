@@ -45,14 +45,14 @@ class SpotifyController(
                 ),
                 spotifyAuth.getSpotifyBuilder(clientID, clientSecret)
             )
-        userService.create(
-            UserCreateRequest(
-                userId = email,
-                username = email,
-                accessToken = codes?.get(0) ?: "",
-                refreshToken = codes?.get(1) ?: "",
+            userService.create(
+                UserCreateRequest(
+                    userId = email,
+                    username = email,
+                    accessToken = codes?.get(0) ?: "",
+                    refreshToken = codes?.get(1) ?: "",
+                )
             )
-        )
         return codes?.get(0) ?: ""
     }
 
@@ -65,11 +65,14 @@ class SpotifyController(
     }
 
     @GetMapping("/user/{token}")
-    fun currentUserData(@PathVariable token: String?): User?
-        = createSpotifyService()
-        .currentUserProfileAsync(
-            token, spotifyAuth.tokenAuthorization(token)
-        )
+    fun currentUserData(@PathVariable token: String?): User? {
+        val spotifyService = createSpotifyService()
+            .currentUserProfileAsync(
+                token, spotifyAuth.tokenAuthorization(token)
+            )
+        return spotifyService
+    }
+
 
     @GetMapping("/playlists/{token}")
     fun currentUserPlaylists(@PathVariable token: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>?
