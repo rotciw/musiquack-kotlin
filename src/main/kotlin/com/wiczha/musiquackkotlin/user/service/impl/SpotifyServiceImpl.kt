@@ -121,7 +121,7 @@ class SpotifyServiceImpl: SpotifyService {
     }
 
     override fun getTrackRecommendations(accessToken: String?, trackId: String?, spotifyApi: SpotifyApi): Recommendations? {
-        val trackRecommendations = spotifyApi.recommendations.seed_tracks(trackId).limit(50).min_popularity(27).build()
+        val trackRecommendations = spotifyApi.recommendations.seed_tracks(trackId).limit(3).min_popularity(27).build()
         try {
             return trackRecommendations.execute()
         } catch (e: IOException) {

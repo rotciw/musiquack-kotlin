@@ -102,9 +102,9 @@ resource "aws_apprunner_service" "application" {
   tags = var.tags
 }
 
-resource "aws_secretsmanager_secret" "spotify_client_secret" {
-  name = "${var.application_name}-${var.environment}/spotify_client_secret"
-  recovery_window_in_days = 0
-  force_overwrite_replica_secret = true
-  tags = var.tags
-}
+#resource "aws_secretsmanager_secret" "spotify_client_secret" {
+#  name = "${var.application_name}-${var.environment}/spotify_client_secret"
+#  recovery_window_in_days = 0
+#  force_overwrite_replica_secret = true
+#  tags = var.tags
+#}
