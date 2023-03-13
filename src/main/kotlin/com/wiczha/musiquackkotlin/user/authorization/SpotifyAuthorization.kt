@@ -20,7 +20,7 @@ class SpotifyAuthorization(spotifyCallbackUri: String) {
         = spotifyApi.authorizationCodeUri()
         //TODO: FIX STATE
         .state("x4xkmn9pu3jsdadsasa")
-        .scope("user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative,playlist-modify-private,playlist-modify-public,streaming,user-read-playback-state,user-modify-playback-state")
+        .scope("user-read-email,user-read-private,playlist-read-private,playlist-read-collaborative")
         .show_dialog(true)
         .build()
 
