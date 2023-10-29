@@ -28,9 +28,7 @@ class SpotifyController(
     private var spotifyAuth = SpotifyAuthorization(spotifyCallbackUri)
 
     @RequestMapping("/callback/uri")
-    fun authorizationUri(): String?
-            = createSpotifyService().
-    authorizationCodeUriSync(
+    fun authorizationUri(): String? = createSpotifyService().authorizationCodeUriSync(
         spotifyAuth.authorizationCodeUriRequest(
             spotifyAuth.getSpotifyBuilder(clientID, clientSecret)
         )
@@ -45,14 +43,14 @@ class SpotifyController(
                 ),
                 spotifyAuth.getSpotifyBuilder(clientID, clientSecret)
             )
-            userService.create(
-                UserCreateRequest(
-                    userId = email,
-                    username = email,
-                    accessToken = codes?.get(0) ?: "",
-                    refreshToken = codes?.get(1) ?: "",
-                )
+        userService.create(
+            UserCreateRequest(
+                userId = email,
+                username = email,
+                accessToken = codes?.get(0) ?: "",
+                refreshToken = codes?.get(1) ?: "",
             )
+        )
         return codes?.get(0) ?: ""
     }
 
@@ -75,32 +73,44 @@ class SpotifyController(
 
 
     @GetMapping("/playlists/{token}")
-    fun currentUserPlaylists(@PathVariable token: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>?
-            = createSpotifyService()
-        .getListOfUserPlaylists(
-            token, offset, spotifyAuth.tokenAuthorization(token)
-        )
+    fun currentUserPlaylists(@PathVariable token: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>? =
+        createSpotifyService()
+            .getListOfUserPlaylists(
+                token, offset, spotifyAuth.tokenAuthorization(token)
+            )
 
     @GetMapping("/playlists/{token}/{playlistId}")
-    fun playlistItems(@PathVariable token: String?, @PathVariable playlistId: String?): Paging<PlaylistTrack>?
-            = createSpotifyService()
-        .getPlaylistItems(
-            token, playlistId, spotifyAuth.tokenAuthorization(token)
-        )
+    fun playlistItems(@PathVariable token: String?, @PathVariable playlistId: String?): Paging<PlaylistTrack>? =
+        createSpotifyService()
+            .getPlaylistItems(
+                token, playlistId, spotifyAuth.tokenAuthorization(token)
+            )
 
     @GetMapping("/track/{token}/{trackId}")
-    fun track(@PathVariable token: String?, @PathVariable trackId: String?): Track?
-            = createSpotifyService()
+    fun track(@PathVariable token: String?, @PathVariable trackId: String?): Track? = createSpotifyService()
         .getTrack(
             token, trackId, spotifyAuth.tokenAuthorization(token)
         )
 
     @GetMapping("/track/recommendations/{token}/{trackId}")
-    fun trackRecommendations(@PathVariable token: String?, @PathVariable trackId: String?): Recommendations?
-            = createSpotifyService()
-        .getTrackRecommendations(
-            token, trackId, spotifyAuth.tokenAuthorization(token)
-        )
+    fun trackRecommendations(@PathVariable token: String?, @PathVariable trackId: String?): Recommendations? =
+        createSpotifyService()
+            .getTrackRecommendations(
+                token, trackId, spotifyAuth.tokenAuthorization(token)
+            )
+
+    @GetMapping("/search/{token}/{queryString}")
+    fun searchTracks(@PathVariable token: String?, @PathVariable queryString: String?): Paging<Track>? =
+        createSpotifyService().searchTracks(token, queryString, spotifyAuth.tokenAuthorization(token))
+
+    @GetMapping("/play/{token}/{uri}/{positionMs}")
+    fun playTrack(@PathVariable token: String?, @PathVariable uri: String?, @PathVariable positionMs: Int?): String? =
+        createSpotifyService().playTrack(token, uri, positionMs, spotifyAuth.tokenAuthorization(token))
+
+    @GetMapping("/pause/{token}")
+    fun pauseTrack(@PathVariable token: String?): String? =
+        createSpotifyService().pauseTrack(token, spotifyAuth.tokenAuthorization(token))
+
 
     fun createSpotifyService(): SpotifyService = SpotifyServiceImpl()
 }

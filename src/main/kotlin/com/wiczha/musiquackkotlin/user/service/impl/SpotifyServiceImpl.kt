@@ -1,6 +1,6 @@
 package com.wiczha.musiquackkotlin.user.service.impl
 
-import com.neovisionaries.i18n.CountryCode
+import com.google.gson.JsonParser
 import com.wiczha.musiquackkotlin.user.service.SpotifyService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -18,24 +18,26 @@ import se.michaelthelin.spotify.requests.authorization.authorization_code.Author
 import java.io.IOException
 
 @Service
-class SpotifyServiceImpl: SpotifyService {
-    override fun authorizationCodeUriSync(authorizationCodeUriRequest:
-                                  AuthorizationCodeUriRequest
+class SpotifyServiceImpl : SpotifyService {
+    override fun authorizationCodeUriSync(
+        authorizationCodeUriRequest:
+        AuthorizationCodeUriRequest
     ): String? {
         try {
             return authorizationCodeUriRequest.execute().toString()
-        }catch (e: IOException){
+        } catch (e: IOException) {
             println("error " + e.localizedMessage)
 
-        }catch (e: SpotifyWebApiException){
+        } catch (e: SpotifyWebApiException) {
             println("Spotify web exception: " + e.localizedMessage)
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, e.localizedMessage, e)
         }
         return null
     }
 
-    override fun authorizationCodeSync(authorizationCodeRequest: AuthorizationCodeRequest,
-                                       spotifyApi: SpotifyApi
+    override fun authorizationCodeSync(
+        authorizationCodeRequest: AuthorizationCodeRequest,
+        spotifyApi: SpotifyApi
     ): List<String>? {
         try {
             val authorizationCodeCredentials = authorizationCodeRequest.execute()
@@ -83,7 +85,11 @@ class SpotifyServiceImpl: SpotifyService {
         return null
     }
 
-    override fun getListOfUserPlaylists(accessToken: String?, offset: Int, spotifyApi: SpotifyApi): Paging<PlaylistSimplified>? {
+    override fun getListOfUserPlaylists(
+        accessToken: String?,
+        offset: Int,
+        spotifyApi: SpotifyApi
+    ): Paging<PlaylistSimplified>? {
         val currentUserPlaylists = spotifyApi.listOfCurrentUsersPlaylists.offset(offset).build()
         try {
             return currentUserPlaylists.execute()
@@ -95,7 +101,11 @@ class SpotifyServiceImpl: SpotifyService {
         }
     }
 
-    override fun getPlaylistItems(accessToken: String?, playlistId: String?, spotifyApi: SpotifyApi): Paging<PlaylistTrack>? {
+    override fun getPlaylistItems(
+        accessToken: String?,
+        playlistId: String?,
+        spotifyApi: SpotifyApi
+    ): Paging<PlaylistTrack>? {
         val currentUser = currentUserProfileAsync(accessToken, spotifyApi)
         val playlistItem = spotifyApi.getPlaylistsItems(playlistId).market(currentUser?.country).build()
         try {
@@ -120,10 +130,53 @@ class SpotifyServiceImpl: SpotifyService {
         }
     }
 
-    override fun getTrackRecommendations(accessToken: String?, trackId: String?, spotifyApi: SpotifyApi): Recommendations? {
+    override fun getTrackRecommendations(
+        accessToken: String?,
+        trackId: String?,
+        spotifyApi: SpotifyApi
+    ): Recommendations? {
         val trackRecommendations = spotifyApi.recommendations.seed_tracks(trackId).limit(3).min_popularity(27).build()
         try {
             return trackRecommendations.execute()
+        } catch (e: IOException) {
+            throw IOException("Error" + e.localizedMessage)
+        } catch (e: SpotifyWebApiException) {
+            println("Spotify web exception: " + e.localizedMessage)
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, e.localizedMessage, e)
+        }
+    }
+
+    override fun searchTracks(accessToken: String?, queryString: String?, spotifyApi: SpotifyApi): Paging<Track>? {
+        val trackRecommendations = spotifyApi.searchTracks(queryString).limit(6).build()
+        try {
+            return trackRecommendations.execute()
+        } catch (e: IOException) {
+            throw IOException("Error" + e.localizedMessage)
+        } catch (e: SpotifyWebApiException) {
+            println("Spotify web exception: " + e.localizedMessage)
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, e.localizedMessage, e)
+        }
+    }
+
+    override fun playTrack(accessToken: String?, uri: String?, positionMs: Int?, spotifyApi: SpotifyApi): String? {
+        val playTrack =
+            spotifyApi.startResumeUsersPlayback().uris(JsonParser.parseString("[\"${uri}\"]").asJsonArray)
+                .position_ms(positionMs).build()
+        try {
+            return playTrack.execute()
+        } catch (e: IOException) {
+            throw IOException("Error" + e.localizedMessage)
+        } catch (e: SpotifyWebApiException) {
+            println("Spotify web exception: " + e.localizedMessage)
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, e.localizedMessage, e)
+        }
+    }
+
+    override fun pauseTrack(accessToken: String?, spotifyApi: SpotifyApi): String? {
+        val pauseTrack =
+            spotifyApi.pauseUsersPlayback().build()
+        try {
+            return pauseTrack.execute()
         } catch (e: IOException) {
             throw IOException("Error" + e.localizedMessage)
         } catch (e: SpotifyWebApiException) {

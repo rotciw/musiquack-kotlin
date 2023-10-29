@@ -7,7 +7,6 @@ import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 import se.michaelthelin.spotify.model_objects.specification.Recommendations
 import se.michaelthelin.spotify.model_objects.specification.Track
 import se.michaelthelin.spotify.model_objects.specification.User
-import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
 
@@ -27,4 +26,10 @@ interface SpotifyService {
     fun getTrack(accessToken: String?, trackId: String?, spotifyApi: SpotifyApi): Track?
 
     fun getTrackRecommendations(accessToken: String?, trackId: String?, spotifyApi: SpotifyApi): Recommendations?
+
+    fun searchTracks(accessToken: String?, queryString: String?, spotifyApi: SpotifyApi): Paging<Track>?
+
+    fun playTrack(accessToken: String?, uri: String?, positionMs: Int?, spotifyApi: SpotifyApi): String?
+
+    fun pauseTrack(accessToken: String?, spotifyApi: SpotifyApi): String?
 }
