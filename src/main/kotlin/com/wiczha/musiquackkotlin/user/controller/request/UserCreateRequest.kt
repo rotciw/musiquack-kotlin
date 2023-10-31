@@ -6,3 +6,10 @@ data class UserCreateRequest (
     val accessToken: String,
     val refreshToken: String,
 )
+
+data class UserUpdateRequest (
+    val userId: String,
+    val username: String,
+    val accessToken: String,
+    val refreshToken: String,
+)

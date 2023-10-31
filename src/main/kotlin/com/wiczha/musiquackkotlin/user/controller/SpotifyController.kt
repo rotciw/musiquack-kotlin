@@ -2,16 +2,20 @@ package com.wiczha.musiquackkotlin.user.controller
 
 import com.wiczha.musiquackkotlin.user.authorization.SpotifyAuthorization
 import com.wiczha.musiquackkotlin.user.controller.request.UserCreateRequest
+import com.wiczha.musiquackkotlin.user.controller.request.UserUpdateRequest
 import com.wiczha.musiquackkotlin.user.service.SpotifyService
 import com.wiczha.musiquackkotlin.user.service.UserService
 import com.wiczha.musiquackkotlin.user.service.impl.SpotifyServiceImpl
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import se.michaelthelin.spotify.model_objects.specification.*
+import kotlin.random.Random
 
 @RestController
 @RequestMapping("v1/spotify")
@@ -34,8 +38,17 @@ class SpotifyController(
         )
     )
 
-    @RequestMapping("/token/{code}/{email}")
-    fun authorizationToken(@PathVariable code: String, @PathVariable email: String): String {
+    fun genRandomID(): String {
+        val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..16)
+            .map { _ -> Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")
+    }
+
+    @RequestMapping("/token/{code}")
+    fun authorizationToken(@PathVariable code: String): String {
+        val sessionId = genRandomID()
         val codes = createSpotifyService()
             .authorizationCodeSync(
                 spotifyAuth.buildAuthorizationCode(
@@ -45,72 +58,98 @@ class SpotifyController(
             )
         userService.create(
             UserCreateRequest(
-                userId = email,
-                username = email,
+                userId = sessionId,
+                username = sessionId,
                 accessToken = codes?.get(0) ?: "",
                 refreshToken = codes?.get(1) ?: "",
             )
         )
-        return codes?.get(0) ?: ""
+        return sessionId
     }
 
-    @GetMapping("/refresh/{email}")
-    fun authCodeRefresh(@PathVariable email: String): List<String>? {
-        val requestUser = userService.findByUserId(email)
-        return createSpotifyService().authorizationCodeRefreshSync(
+    @GetMapping("/refresh/{sessionId}")
+    fun authCodeRefresh(@PathVariable sessionId: String): ResponseEntity<HttpStatus> {
+        val requestUser = userService.findBySessionId(sessionId)
+        val codes = createSpotifyService().authorizationCodeRefreshSync(
             spotifyAuth.refreshTokenAuthorization(requestUser.refreshToken, clientID, clientSecret)
         )
-    }
-
-    @GetMapping("/user/{token}")
-    fun currentUserData(@PathVariable token: String?): User? {
-        val spotifyService = createSpotifyService()
-            .currentUserProfileAsync(
-                token, spotifyAuth.tokenAuthorization(token)
+        userService.update(
+            UserUpdateRequest(
+                userId = sessionId,
+                username = sessionId,
+                accessToken = codes?.get(0) ?: "",
+                refreshToken = requestUser.refreshToken,
             )
-        return spotifyService
-    }
-
-
-    @GetMapping("/playlists/{token}")
-    fun currentUserPlaylists(@PathVariable token: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>? =
-        createSpotifyService()
-            .getListOfUserPlaylists(
-                token, offset, spotifyAuth.tokenAuthorization(token)
-            )
-
-    @GetMapping("/playlists/{token}/{playlistId}")
-    fun playlistItems(@PathVariable token: String?, @PathVariable playlistId: String?): Paging<PlaylistTrack>? =
-        createSpotifyService()
-            .getPlaylistItems(
-                token, playlistId, spotifyAuth.tokenAuthorization(token)
-            )
-
-    @GetMapping("/track/{token}/{trackId}")
-    fun track(@PathVariable token: String?, @PathVariable trackId: String?): Track? = createSpotifyService()
-        .getTrack(
-            token, trackId, spotifyAuth.tokenAuthorization(token)
         )
+        return ResponseEntity(HttpStatus.OK)
+    }
 
-    @GetMapping("/track/recommendations/{token}/{trackId}")
-    fun trackRecommendations(@PathVariable token: String?, @PathVariable trackId: String?): Recommendations? =
-        createSpotifyService()
+    @GetMapping("/user/{sessionId}")
+    fun currentUserData(@PathVariable sessionId: String?): User? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService()
+            .currentUserProfileAsync(spotifyAuth.tokenAuthorization(accessToken))
+    }
+
+
+    @GetMapping("/playlists/{sessionId}")
+    fun currentUserPlaylists(@PathVariable sessionId: String?, @RequestParam offset: Int): Paging<PlaylistSimplified>? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService()
+            .getListOfUserPlaylists(offset, spotifyAuth.tokenAuthorization(accessToken))
+    }
+
+
+    @GetMapping("/playlists/{sessionId}/{playlistId}")
+    fun playlistItems(@PathVariable sessionId: String?, @PathVariable playlistId: String?): Paging<PlaylistTrack>? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService()
+            .getPlaylistItems(
+                playlistId, spotifyAuth.tokenAuthorization(accessToken)
+            )
+    }
+
+    @GetMapping("/track/{sessionId}/{trackId}")
+    fun track(@PathVariable sessionId: String?, @PathVariable trackId: String?): Track? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService()
+            .getTrack(
+                trackId, spotifyAuth.tokenAuthorization(accessToken)
+            )
+    }
+
+    @GetMapping("/track/recommendations/{sessionId}/{trackId}")
+    fun trackRecommendations(@PathVariable sessionId: String?, @PathVariable trackId: String?): Recommendations? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService()
             .getTrackRecommendations(
-                token, trackId, spotifyAuth.tokenAuthorization(token)
+                trackId, spotifyAuth.tokenAuthorization(accessToken)
             )
 
-    @GetMapping("/search/{token}/{queryString}")
-    fun searchTracks(@PathVariable token: String?, @PathVariable queryString: String?): Paging<Track>? =
-        createSpotifyService().searchTracks(token, queryString, spotifyAuth.tokenAuthorization(token))
+    }
 
-    @GetMapping("/play/{token}/{uri}/{positionMs}")
-    fun playTrack(@PathVariable token: String?, @PathVariable uri: String?, @PathVariable positionMs: Int?): String? =
-        createSpotifyService().playTrack(token, uri, positionMs, spotifyAuth.tokenAuthorization(token))
+    @GetMapping("/search/{sessionId}/{queryString}")
+    fun searchTracks(@PathVariable sessionId: String?, @PathVariable queryString: String?): Paging<Track>? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService().searchTracks(queryString, spotifyAuth.tokenAuthorization(accessToken))
+    }
 
-    @GetMapping("/pause/{token}")
-    fun pauseTrack(@PathVariable token: String?): String? =
-        createSpotifyService().pauseTrack(token, spotifyAuth.tokenAuthorization(token))
 
+    @GetMapping("/play/{sessionId}/{uri}/{positionMs}")
+    fun playTrack(
+        @PathVariable sessionId: String?,
+        @PathVariable uri: String?,
+        @PathVariable positionMs: Int?
+    ): String? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService().playTrack(uri, positionMs, spotifyAuth.tokenAuthorization(accessToken))
+    }
+
+    @GetMapping("/pause/{sessionId}")
+    fun pauseTrack(@PathVariable sessionId: String?): String? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService().pauseTrack(spotifyAuth.tokenAuthorization(accessToken))
+    }
 
     fun createSpotifyService(): SpotifyService = SpotifyServiceImpl()
 }

@@ -22,3 +22,22 @@ data class UserCreateResponse (
         )
     }
 }
+
+data class UserUpdateResponse (
+    val userId: String,
+    val username: String,
+    val accessToken: String,
+    val refreshToken: String,
+    @field:JsonFormat(pattern="dd-MM-yyyy")
+    val createdAt: LocalDateTime
+) {
+    companion object {
+        fun from(user: User) = UserUpdateResponse(
+            userId = user.userId,
+            username = user.username,
+            accessToken = user.accessToken,
+            refreshToken = user.refreshToken,
+            createdAt = user.createdAt
+        )
+    }
+}

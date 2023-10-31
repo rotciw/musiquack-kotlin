@@ -13,6 +13,6 @@ class UserApiController(
     fun create(@RequestBody request: UserCreateRequest) = userService.create(request)
 
     @GetMapping("/id/{userId}")
-    fun findByUserId(@PathVariable("userId") userId: String) = userService.findByUserId(userId)
+    fun findByUserId(@PathVariable("userId") userId: String) = userService.findBySessionId(userId)
 
 }
