@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException
 import se.michaelthelin.spotify.SpotifyApi
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException
 import se.michaelthelin.spotify.exceptions.detailed.UnauthorizedException
+import se.michaelthelin.spotify.model_objects.miscellaneous.Device
 import se.michaelthelin.spotify.model_objects.specification.Paging
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
@@ -28,7 +29,7 @@ class SpotifyServiceImpl : SpotifyService {
             return authorizationCodeUriRequest.execute().toString()
         } catch (e: IOException) {
             println("error " + e.localizedMessage)
-        }  catch (e: UnauthorizedException) {
+        } catch (e: UnauthorizedException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, e.localizedMessage, e)
         } catch (e: SpotifyWebApiException) {
             println("Spotify web exception: $e")
@@ -48,7 +49,7 @@ class SpotifyServiceImpl : SpotifyService {
             return listOf<String>(spotifyApi.accessToken, spotifyApi.refreshToken)
         } catch (e: IOException) {
             println("error " + e.localizedMessage)
-        }  catch (e: UnauthorizedException) {
+        } catch (e: UnauthorizedException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, e.localizedMessage, e)
         } catch (e: SpotifyWebApiException) {
             println("Spotify web exception: $e")
@@ -66,7 +67,7 @@ class SpotifyServiceImpl : SpotifyService {
 
         } catch (e: IOException) {
             println("error " + e.localizedMessage)
-        }  catch (e: UnauthorizedException) {
+        } catch (e: UnauthorizedException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, e.localizedMessage, e)
         } catch (e: SpotifyWebApiException) {
             println("Spotify web exception: $e")
@@ -81,7 +82,7 @@ class SpotifyServiceImpl : SpotifyService {
             return currentUserProfile.execute()
         } catch (e: IOException) {
             println("Error" + e.localizedMessage)
-        }  catch (e: UnauthorizedException) {
+        } catch (e: UnauthorizedException) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, e.localizedMessage, e)
         } catch (e: SpotifyWebApiException) {
             println("Spotify web exception: $e")
@@ -170,9 +171,10 @@ class SpotifyServiceImpl : SpotifyService {
         }
     }
 
-    override fun playTrack(uri: String?, positionMs: Int?, spotifyApi: SpotifyApi): String? {
+    override fun playTrack(uri: String?, positionMs: Int?, deviceId: String?, spotifyApi: SpotifyApi): String? {
         val playTrack =
             spotifyApi.startResumeUsersPlayback().uris(JsonParser.parseString("[\"${uri}\"]").asJsonArray)
+                .device_id(deviceId)
                 .position_ms(positionMs).build()
         try {
             return playTrack.execute()
@@ -191,6 +193,21 @@ class SpotifyServiceImpl : SpotifyService {
             spotifyApi.pauseUsersPlayback().build()
         try {
             return pauseTrack.execute()
+        } catch (e: IOException) {
+            throw IOException("Error" + e.localizedMessage)
+        } catch (e: UnauthorizedException) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, e.localizedMessage, e)
+        } catch (e: SpotifyWebApiException) {
+            println("Spotify web exception: $e")
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.localizedMessage, e)
+        }
+    }
+
+    override fun getDevices(spotifyApi: SpotifyApi): Array<out Device>? {
+        val getDevices =
+            spotifyApi.usersAvailableDevices.build()
+        try {
+            return getDevices.execute()
         } catch (e: IOException) {
             throw IOException("Error" + e.localizedMessage)
         } catch (e: UnauthorizedException) {

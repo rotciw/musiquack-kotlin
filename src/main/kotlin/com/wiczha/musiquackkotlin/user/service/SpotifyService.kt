@@ -1,6 +1,7 @@
 package com.wiczha.musiquackkotlin.user.service
 
 import se.michaelthelin.spotify.SpotifyApi
+import se.michaelthelin.spotify.model_objects.miscellaneous.Device
 import se.michaelthelin.spotify.model_objects.specification.Paging
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
@@ -29,7 +30,9 @@ interface SpotifyService {
 
     fun searchTracks(queryString: String?, spotifyApi: SpotifyApi): Paging<Track>?
 
-    fun playTrack(uri: String?, positionMs: Int?, spotifyApi: SpotifyApi): String?
+    fun playTrack(uri: String?, positionMs: Int?, deviceId: String?, spotifyApi: SpotifyApi): String?
 
     fun pauseTrack(spotifyApi: SpotifyApi): String?
+
+    fun getDevices(spotifyApi: SpotifyApi): Array<out Device>?
 }

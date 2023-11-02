@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import se.michaelthelin.spotify.model_objects.miscellaneous.Device
 import se.michaelthelin.spotify.model_objects.specification.*
 import kotlin.random.Random
 
@@ -135,20 +136,27 @@ class SpotifyController(
     }
 
 
-    @GetMapping("/play/{sessionId}/{uri}/{positionMs}")
+    @GetMapping("/play/{sessionId}/{uri}/{positionMs}/{deviceId}")
     fun playTrack(
         @PathVariable sessionId: String?,
         @PathVariable uri: String?,
+        @PathVariable deviceId: String?,
         @PathVariable positionMs: Int?
     ): String? {
         val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
-        return createSpotifyService().playTrack(uri, positionMs, spotifyAuth.tokenAuthorization(accessToken))
+        return createSpotifyService().playTrack(uri, positionMs, deviceId, spotifyAuth.tokenAuthorization(accessToken))
     }
 
     @GetMapping("/pause/{sessionId}")
     fun pauseTrack(@PathVariable sessionId: String?): String? {
         val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
         return createSpotifyService().pauseTrack(spotifyAuth.tokenAuthorization(accessToken))
+    }
+
+    @GetMapping("/devices/{sessionId}")
+    fun getDevices(@PathVariable sessionId: String?): Array<out Device>? {
+        val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
+        return createSpotifyService().getDevices(spotifyAuth.tokenAuthorization(accessToken))
     }
 
     fun createSpotifyService(): SpotifyService = SpotifyServiceImpl()
