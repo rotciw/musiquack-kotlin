@@ -2,12 +2,7 @@ package com.wiczha.musiquackkotlin.user.service
 
 import se.michaelthelin.spotify.SpotifyApi
 import se.michaelthelin.spotify.model_objects.miscellaneous.Device
-import se.michaelthelin.spotify.model_objects.specification.Paging
-import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
-import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
-import se.michaelthelin.spotify.model_objects.specification.Recommendations
-import se.michaelthelin.spotify.model_objects.specification.Track
-import se.michaelthelin.spotify.model_objects.specification.User
+import se.michaelthelin.spotify.model_objects.specification.*
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
 
@@ -26,7 +21,7 @@ interface SpotifyService {
 
     fun getTrack(trackId: String?, spotifyApi: SpotifyApi): Track?
 
-    fun getTrackRecommendations(trackId: String?, spotifyApi: SpotifyApi): Recommendations?
+    fun getTrackRecommendations(trackId: String?, spotifyApi: SpotifyApi): List<TrackSimplified>?
 
     fun searchTracks(queryString: String?, spotifyApi: SpotifyApi): Paging<Track>?
 
