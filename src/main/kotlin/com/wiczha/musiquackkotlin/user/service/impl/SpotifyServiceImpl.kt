@@ -13,7 +13,6 @@ import se.michaelthelin.spotify.model_objects.specification.Paging
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified
 import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack
 import se.michaelthelin.spotify.model_objects.specification.Track
-import se.michaelthelin.spotify.model_objects.specification.TrackSimplified
 import se.michaelthelin.spotify.model_objects.specification.User as SpotifyUser
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest
@@ -143,7 +142,7 @@ class SpotifyServiceImpl : SpotifyService {
     override fun getTrackRecommendations(
         trackId: String?,
         spotifyApi: SpotifyApi
-    ): List<TrackSimplified>? {
+    ): List<Track>? {
         val artists = getTrack(trackId, spotifyApi)?.artists?.map { it.name }
         val trackRecommendations = spotifyApi.recommendations.seed_tracks(trackId).limit(8).min_popularity(27).build()
         val filteredRecommendations =

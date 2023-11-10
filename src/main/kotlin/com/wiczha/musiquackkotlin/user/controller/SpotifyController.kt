@@ -120,7 +120,7 @@ class SpotifyController(
     }
 
     @GetMapping("/track/recommendations/{sessionId}/{trackId}")
-    fun trackRecommendations(@PathVariable sessionId: String?, @PathVariable trackId: String?): List<TrackSimplified>? {
+    fun trackRecommendations(@PathVariable sessionId: String?, @PathVariable trackId: String?): List<Track>? {
         val accessToken = sessionId?.let { userService.findBySessionId(it).accessToken }
         return createSpotifyService()
             .getTrackRecommendations(

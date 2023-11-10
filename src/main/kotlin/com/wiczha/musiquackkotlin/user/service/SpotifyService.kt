@@ -21,7 +21,7 @@ interface SpotifyService {
 
     fun getTrack(trackId: String?, spotifyApi: SpotifyApi): Track?
 
-    fun getTrackRecommendations(trackId: String?, spotifyApi: SpotifyApi): List<TrackSimplified>?
+    fun getTrackRecommendations(trackId: String?, spotifyApi: SpotifyApi): List<Track>?
 
     fun searchTracks(queryString: String?, spotifyApi: SpotifyApi): Paging<Track>?
 

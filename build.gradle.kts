@@ -23,9 +23,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-noarg")
 
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.2.1")
+
     implementation("com.amazonaws:aws-java-sdk-dynamodb:1.12.328")
     implementation("io.github.boostchicken:spring-data-dynamodb:5.2.5")
-    implementation("se.michaelthelin.spotify:spotify-web-api-java:7.2.2")
+    implementation("se.michaelthelin.spotify:spotify-web-api-java:8.3.3")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test-junit"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
